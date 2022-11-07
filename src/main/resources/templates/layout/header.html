@@ -4,8 +4,12 @@
 <head th:fragment="userHead">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
     <title>Home</title>
-    <link rel="stylesheet" th:href="@{/css/base.css}" /> <!--localhost:8080/css/base.css 로 요청하는것과 같은 표현. 절대경로. Spring boot에서는 정적 자원
-     매핑을 resource/static 안에 들어있는 자원을 자동으로 지원해줌. Spring legacy의 경우 따로 설정파일에 정적자원 경로매핑 추가해야함-->
+    <link rel="stylesheet" th:href="@{/css/base.css}" />
     <link rel="stylesheet" th:href="@{https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css}" />
 </head>
 </html>
+<!--
+    localhost:8080/css/base.css 로 요청하는것과 같은 표현. 절대경로. Spring boot에서는 정적 자원 매핑을 resource/static/ 안에 들어있는 자원으로
+     자동으로 지원해줌. Spring legacy의 경우 따로 설정파일에 정적자원 경로매핑 추가해야함
+    스프링 시큐리티 설정을 했을 경우 정적 자원에 대한 경로는 permitAll()을 하거나 WebIgnore 설정을 해줘야 한다. (SecurityConfig.java확인)
+-->
