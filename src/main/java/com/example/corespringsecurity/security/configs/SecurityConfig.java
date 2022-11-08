@@ -1,12 +1,18 @@
 package com.example.corespringsecurity.security.configs;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
@@ -26,7 +32,6 @@ public class SecurityConfig {
      *
      *
      */
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -45,25 +50,25 @@ public class SecurityConfig {
         return http.build();
     }
 
-
+// DB에서 사용자 직접 조회할 예정이기 때문에 주석처리
     // IN-MEMORY 방식  user 생성
-    @Bean
-    public UserDetailsManager user(){
-        String password = passwordEncoder().encode("1111");
-        UserDetails user = User.builder()
-                .username("user")
-                .password(password)
-                .roles("USER").build();
-        UserDetails manager = User.builder()
-                .username("manager")
-                .password(password)
-                .roles("MANAGER","USER").build();
-        UserDetails admin = User.builder()
-                .username("admin")
-                .password(password)
-                .roles("ADMIN","USER","MANAGER").build();
-        return new InMemoryUserDetailsManager(user,manager,admin);
-    }
+//    @Bean
+//    public UserDetailsManager user(){
+//        String password = passwordEncoder().encode("1111");
+//        UserDetails user = User.builder()
+//                .username("user")
+//                .password(password)
+//                .roles("USER").build();
+//        UserDetails manager = User.builder()
+//                .username("manager")
+//                .password(password)
+//                .roles("MANAGER","USER").build();
+//        UserDetails admin = User.builder()
+//                .username("admin")
+//                .password(password)
+//                .roles("ADMIN","USER","MANAGER").build();
+//        return new InMemoryUserDetailsManager(user,manager,admin);
+//    }
 
     // 평문인 비밀번호 암호화 해주는 encoder
     @Bean
@@ -74,7 +79,15 @@ public class SecurityConfig {
     // WebIgnore 설정: js,css,image 파일 등 보안 필터를 적용할 필요가 없는 리소스 설정 , 보안 filter 자체를 거치지 않음.
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer(){
+//         web : WebSecurity class 객체가 들어옴
         return web -> web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+//        아래 식과 같은 표현 (alt+enter로 lamda 식으로 변경 가능)
+//        return new WebSecurityCustomizer() {
+//            @Override
+//            public void customize(WebSecurity web) {
+//                web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+//            }
+//        };
 
     }
 }
