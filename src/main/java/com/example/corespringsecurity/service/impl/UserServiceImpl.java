@@ -13,7 +13,6 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
-    // Service기 때문에 Transactional??
     @Transactional
     @Override
     public void createUser(Account account) {

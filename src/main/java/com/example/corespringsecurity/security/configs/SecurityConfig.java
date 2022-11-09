@@ -1,9 +1,11 @@
 package com.example.corespringsecurity.security.configs;
 
+import com.example.corespringsecurity.security.provider.CustomAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -32,18 +34,30 @@ public class SecurityConfig {
      *
      *
      */
+
+    // Customize 한 AuthenticationProvider bean 등록, SpringSecurity가 이 Provider를 참조해서 인증처리를 하게 됨
+    @Bean
+    public CustomAuthenticationProvider customAuthenticationProvider(){
+        return new CustomAuthenticationProvider();
+    }
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
                 .antMatchers("/","/users").permitAll()
 //                .antMatchers("/css/**","/js/**","/images/**","/webjars/**","/favicon.*","/*/icon-*").permitAll() // WebIgnore 설정으로 변경
+                // prefix ROLE_ 이 붙음
                 .antMatchers("/mypage").hasRole("USER")
                 .antMatchers("/messages").hasRole("MANAGER")
                 .antMatchers("/config").hasRole("ADMIN")
                 .anyRequest().authenticated()
-                .and()
-                .formLogin();
+            .and()
+                .formLogin()
+                .loginPage("/login") // custom login page
+                .loginProcessingUrl("/login_proc")  // login.html에 정의된 action 값과 동일하게 정의해야함
+                .defaultSuccessUrl("/")
+                .permitAll() // 로그인 페이지는 permitAll
+                ;
 
 
 

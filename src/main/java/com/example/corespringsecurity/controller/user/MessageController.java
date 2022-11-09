@@ -8,6 +8,6 @@ public class MessageController {
 
     @GetMapping(value="/messages")
     public String message(){
-        return "user/login/messages";
+        return "user/messages";
     }
 }

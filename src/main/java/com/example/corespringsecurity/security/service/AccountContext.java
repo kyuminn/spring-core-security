@@ -12,6 +12,7 @@ public class AccountContext extends User {
     @Getter
     private final Account account;
 
+    // 객체의 불변성을 위해 setter 함수 지양.
     public AccountContext(Account account, Collection<? extends GrantedAuthority> authorities) {
         super(account.getUsername(), account.getPassword(), authorities);
         this.account = account;

@@ -7,7 +7,6 @@ import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 
@@ -22,7 +21,7 @@ public class UserController {
 
     @GetMapping(value="/mypage")
     public String myPage(){
-        return "user/login/mypage";
+        return "user/mypage";
     }
 
     @GetMapping("/users")
