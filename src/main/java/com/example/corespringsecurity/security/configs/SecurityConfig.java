@@ -4,6 +4,7 @@ import com.example.corespringsecurity.security.provider.CustomAuthenticationProv
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -23,6 +24,7 @@ import org.springframework.security.web.SecurityFilterChain;
 
 
 @EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig {
     /**
      * Spring에서 Bean을 등록하는 방식 소개
@@ -34,6 +36,10 @@ public class SecurityConfig {
      *
      *
      */
+
+    // Customize 한 FormAuthenticationDetailsSource bean 등록
+    // 왜 FormAuthenticationDetailSource 를 주입하지 않고 interface로 주입해도 FormAuthenticationDetailSource가 주입되는거지?
+    private final AuthenticationDetailsSource authenticationDetailsSource;
 
     // Customize 한 AuthenticationProvider bean 등록, SpringSecurity가 이 Provider를 참조해서 인증처리를 하게 됨
     @Bean
@@ -55,6 +61,7 @@ public class SecurityConfig {
                 .formLogin()
                 .loginPage("/login") // custom login page
                 .loginProcessingUrl("/login_proc")  // login.html에 정의된 action 값과 동일하게 정의해야함
+                .authenticationDetailsSource(authenticationDetailsSource)
                 .defaultSuccessUrl("/")
                 .permitAll() // 로그인 페이지는 permitAll
                 ;

@@ -57,9 +57,11 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
      * @return
      * @throws AuthenticationException
      * 인증 관련 처리 메서드
+     * 매개변수로 전달받은 Authentication 객체 안에 사용자가 입력한 id와 pw 정보가 들어있다.
      */
     @Override
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+        // 사용자가 입력한 값 꺼내오기
         String username = authentication.getName();
         String password = (String) authentication.getCredentials(); //pw
 
