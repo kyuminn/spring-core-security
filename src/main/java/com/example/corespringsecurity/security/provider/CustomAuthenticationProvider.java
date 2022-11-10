@@ -65,7 +65,7 @@ public class CustomAuthenticationProvider implements AuthenticationProvider {
 
         AccountContext accountContext = (AccountContext) userDetailsService.loadUserByUsername(username);
 
-        if(passwordEncoder.matches(password,accountContext.getAccount().getPassword())){
+        if(!passwordEncoder.matches(password,accountContext.getAccount().getPassword())){
             throw new BadCredentialsException("BadCredentialException ! ! ! ");
         }
         System.out.println("CustomAuthenticationManager!");
