@@ -1,7 +1,10 @@
 package com.example.corespringsecurity.security.configs;
 
+import com.example.corespringsecurity.security.common.FormAuthenticationDetailsSource;
+import com.example.corespringsecurity.security.handler.CustomAccessDeniedHandler;
 import com.example.corespringsecurity.security.provider.CustomAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
@@ -21,6 +24,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.AccessDeniedHandler;
+import org.springframework.security.web.authentication.AuthenticationFailureHandler;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 
 
 @EnableWebSecurity
@@ -39,7 +45,23 @@ public class SecurityConfig {
 
     // Customize 한 FormAuthenticationDetailsSource bean 등록
     // 왜 FormAuthenticationDetailSource 를 주입하지 않고 interface로 주입해도 FormAuthenticationDetailSource가 주입되는거지?
+//            successHandler 로 마찬가지구 ..
     private final AuthenticationDetailsSource authenticationDetailsSource;
+    private final AuthenticationSuccessHandler authenticationSuccessHandler;
+    private final AuthenticationFailureHandler authenticationFailureHandler;
+//    private final AccessDeniedHandler accessDeniedHandler;
+
+
+    // 왜 CustomAccessDeniedHandler class 에서 직접 에러페이지를 세팅하지 않는거지 ?
+    // CustomAccessDeniedHandler 는 왜 private final로 의존주입을 받지 않고 bean으로 설정하는 거지 ?
+//    @Bean으로 한 이유는 exception핸들러에 추가적으로 setter를 사용해야 했기 때문에 @Bean으로 등록한것이고
+//    @Autowired나 private final로 의존주입을 한 경우는 추가작업 없이 의존성 주입만 하면 되기 때문
+    @Bean
+    public AccessDeniedHandler accessDeniedHandler(){
+        CustomAccessDeniedHandler accessDeniedHandler = new CustomAccessDeniedHandler();
+        accessDeniedHandler.setErrorPage("/denied");
+        return accessDeniedHandler;
+    }
 
     // Customize 한 AuthenticationProvider bean 등록, SpringSecurity가 이 Provider를 참조해서 인증처리를 하게 됨
     @Bean
@@ -50,7 +72,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/","/users").permitAll()
+                .antMatchers("/","/users","user/login/**","/login*").permitAll()
 //                .antMatchers("/css/**","/js/**","/images/**","/webjars/**","/favicon.*","/*/icon-*").permitAll() // WebIgnore 설정으로 변경
                 // prefix ROLE_ 이 붙음
                 .antMatchers("/mypage").hasRole("USER")
@@ -63,9 +85,13 @@ public class SecurityConfig {
                 .loginProcessingUrl("/login_proc")  // login.html에 정의된 action 값과 동일하게 정의해야함
                 .authenticationDetailsSource(authenticationDetailsSource)
                 .defaultSuccessUrl("/")
-                .permitAll() // 로그인 페이지는 permitAll
-                ;
+                .successHandler(authenticationSuccessHandler)
+                .failureHandler(authenticationFailureHandler)
+                .permitAll(); // 로그인 페이지는 permitAll
 
+        http
+                .exceptionHandling()
+                .accessDeniedHandler(accessDeniedHandler());
 
 
         return http.build();
@@ -101,7 +127,10 @@ public class SecurityConfig {
     @Bean
     public WebSecurityCustomizer webSecurityCustomizer(){
 //         web : WebSecurity class 객체가 들어옴
-        return web -> web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+        return web -> {
+            web.ignoring().requestMatchers(PathRequest.toStaticResources().atCommonLocations());
+            web.ignoring().antMatchers("/favicon.ico", "/resources/**", "/error");
+        };
 //        아래 식과 같은 표현 (alt+enter로 lamda 식으로 변경 가능)
 //        return new WebSecurityCustomizer() {
 //            @Override

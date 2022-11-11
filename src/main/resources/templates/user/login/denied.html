@@ -15,7 +15,7 @@
               <div style="padding-top: 10px;" class="nav flex-column nav-pills" aria-orientation="vertical">
                 <a th:href="@{/}" style="maring:5px;" class="nav-link text-primary">대시보드</a>
                 <a th:href="@{/mypage}" style="maring:5px;" class="nav-link text-primary">마이페이지</a>
-                <a th:href="@{/message}" style="maring:5px;" class="nav-link text-primary">메시지</a>
+                <a th:href="@{/messages}" style="maring:5px;" class="nav-link text-primary">메시지</a>
                 <a th:href="@{/config}" style="maring:5px;" class="nav-link text-primary">설정</a>
               </div>
             </li>
@@ -25,7 +25,7 @@
 
       <div style="padding-top: 50px;" class="col">
         <div class="container text-center">
-          <h1><span th:text="${username}" class="alert alert-danger">접근권한이 없습니다.</span></h1>
+          <h1><span th:text="${username}" class="alert alert-danger"></span>님은 접근 권한이 없습니다.</h1>
           <br>
           <h3 th:text="${exception}"></h3>
         </div>
