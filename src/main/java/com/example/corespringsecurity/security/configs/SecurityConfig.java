@@ -1,6 +1,7 @@
 package com.example.corespringsecurity.security.configs;
 
 import com.example.corespringsecurity.security.common.FormAuthenticationDetailsSource;
+import com.example.corespringsecurity.security.filter.AjaxLoginProcessingFilter;
 import com.example.corespringsecurity.security.handler.CustomAccessDeniedHandler;
 import com.example.corespringsecurity.security.provider.CustomAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.access.AccessDeniedHandler;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 
 @EnableWebSecurity
@@ -63,6 +65,22 @@ public class SecurityConfig {
         return accessDeniedHandler;
     }
 
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    // Ajax 방식 로그인 시 작동하는 필터 추가
+    // 이거 private final 해도 되나? filter 클래스 위에 @Component 해보고 ?
+    // -> Magager 설정 해야 해서 안될 듯..
+    @Bean
+    public AjaxLoginProcessingFilter ajaxLoginProcessingFilter(AuthenticationManager authenticationManager){
+        AjaxLoginProcessingFilter ajaxLoginProcessingFilter =
+                new AjaxLoginProcessingFilter();
+        ajaxLoginProcessingFilter.setAuthenticationManager(authenticationManager);
+        return ajaxLoginProcessingFilter;
+    };
+
     // Customize 한 AuthenticationProvider bean 등록, SpringSecurity가 이 Provider를 참조해서 인증처리를 하게 됨
     @Bean
     public CustomAuthenticationProvider customAuthenticationProvider(){
@@ -89,9 +107,14 @@ public class SecurityConfig {
                 .failureHandler(authenticationFailureHandler)
                 .permitAll(); // 로그인 페이지는 permitAll
 
+        AuthenticationManager authenticationManager = authenticationManager(http.getSharedObject(AuthenticationConfiguration.class));
         http
                 .exceptionHandling()
-                .accessDeniedHandler(accessDeniedHandler());
+                .accessDeniedHandler(accessDeniedHandler())
+            .and()
+                .addFilterBefore(ajaxLoginProcessingFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class);// 뒤에 있는 필터 앞에 위치하도록 하는 method
+        //Spring security에서는 post, delete 방식으로 요청했을 경우 csrf token이 있는지 검사함. 테스트할때 잠깐 disable 해줄 것.
+        http.csrf().disable();
 
 
         return http.build();
