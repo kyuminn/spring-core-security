@@ -6,6 +6,7 @@ import com.example.corespringsecurity.security.handler.CustomAccessDeniedHandler
 import com.example.corespringsecurity.security.provider.CustomAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.annotation.Order;
@@ -54,9 +55,11 @@ public class SecurityConfig {
 
     // 이것이 AuthenticationDetailSource를 주입했지만 FormAuthenticationDetailsSource bean이 주입되는 이유임.
     // SuccessHandler, FailureHandler도 마찬가지
+
+            // to-do : private final 하게 DI 할때 bean 이름은 변수명 인가 ?
     private final AuthenticationDetailsSource authenticationDetailsSource;
-    private final AuthenticationSuccessHandler authenticationSuccessHandler;
-    private final AuthenticationFailureHandler authenticationFailureHandler;
+    private final AuthenticationSuccessHandler formAuthenticationSuccessHandler;
+    private final AuthenticationFailureHandler formAuthenticationFailureHandler;
 //    private final AccessDeniedHandler accessDeniedHandler;
 
 
@@ -96,8 +99,8 @@ public class SecurityConfig {
                 .loginProcessingUrl("/login_proc")  // login.html에 정의된 action 값과 동일하게 정의해야함
                 .authenticationDetailsSource(authenticationDetailsSource)
                 .defaultSuccessUrl("/")
-                .successHandler(authenticationSuccessHandler)
-                .failureHandler(authenticationFailureHandler)
+                .successHandler(formAuthenticationSuccessHandler)
+                .failureHandler(formAuthenticationFailureHandler)
                 .permitAll(); // 로그인 페이지는 permitAll
         http
                 .exceptionHandling()

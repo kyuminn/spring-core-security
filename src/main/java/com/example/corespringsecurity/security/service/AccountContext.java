@@ -7,6 +7,7 @@ import org.springframework.security.core.userdetails.User;
 
 import java.util.Collection;
 
+// user 계정(account)클래스를 담고 있는 AccountContext class
 public class AccountContext extends User {
 
     @Getter
