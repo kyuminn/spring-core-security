@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.authentication.AuthenticationDetailsSource;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
@@ -33,6 +34,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 @EnableWebSecurity
 @RequiredArgsConstructor
+@Order(1)
 public class SecurityConfig {
     /**
      * Spring에서 Bean을 등록하는 방식 소개
@@ -45,9 +47,13 @@ public class SecurityConfig {
      *
      */
 
-    // Customize 한 FormAuthenticationDetailsSource bean 등록
-    // 왜 FormAuthenticationDetailSource 를 주입하지 않고 interface로 주입해도 FormAuthenticationDetailSource가 주입되는거지?
-//            successHandler 로 마찬가지구 ..
+    // Customize 한 bean 등록
+    // Spring DI는 인터페이스 타입으로 자동 바인딩 되도록 지원
+    //동일한 인터페이스 타입으로 여러개의 빈이 존재할 경우에는 오류가 나지만
+    // 특정 인터페이스 타입으로 생성된 bean이 하나라면 자동적으로 그 class가 bean으로 주입됨
+
+    // 이것이 AuthenticationDetailSource를 주입했지만 FormAuthenticationDetailsSource bean이 주입되는 이유임.
+    // SuccessHandler, FailureHandler도 마찬가지
     private final AuthenticationDetailsSource authenticationDetailsSource;
     private final AuthenticationSuccessHandler authenticationSuccessHandler;
     private final AuthenticationFailureHandler authenticationFailureHandler;
@@ -65,21 +71,8 @@ public class SecurityConfig {
         return accessDeniedHandler;
     }
 
-    @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
-    }
 
-    // Ajax 방식 로그인 시 작동하는 필터 추가
-    // 이거 private final 해도 되나? filter 클래스 위에 @Component 해보고 ?
-    // -> Magager 설정 해야 해서 안될 듯..
-    @Bean
-    public AjaxLoginProcessingFilter ajaxLoginProcessingFilter(AuthenticationManager authenticationManager){
-        AjaxLoginProcessingFilter ajaxLoginProcessingFilter =
-                new AjaxLoginProcessingFilter();
-        ajaxLoginProcessingFilter.setAuthenticationManager(authenticationManager);
-        return ajaxLoginProcessingFilter;
-    };
+
 
     // Customize 한 AuthenticationProvider bean 등록, SpringSecurity가 이 Provider를 참조해서 인증처리를 하게 됨
     @Bean
@@ -106,15 +99,11 @@ public class SecurityConfig {
                 .successHandler(authenticationSuccessHandler)
                 .failureHandler(authenticationFailureHandler)
                 .permitAll(); // 로그인 페이지는 permitAll
-
-        AuthenticationManager authenticationManager = authenticationManager(http.getSharedObject(AuthenticationConfiguration.class));
         http
                 .exceptionHandling()
-                .accessDeniedHandler(accessDeniedHandler())
-            .and()
-                .addFilterBefore(ajaxLoginProcessingFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class);// 뒤에 있는 필터 앞에 위치하도록 하는 method
+                .accessDeniedHandler(accessDeniedHandler());
         //Spring security에서는 post, delete 방식으로 요청했을 경우 csrf token이 있는지 검사함. 테스트할때 잠깐 disable 해줄 것.
-        http.csrf().disable();
+//        http.csrf().disable();
 
 
         return http.build();
