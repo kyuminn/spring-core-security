@@ -10,4 +10,9 @@ public class MessageController {
     public String message(){
         return "user/messages";
     }
+
+    @GetMapping(value = "/api/messages")
+    public String apiMessage(){
+        return "messages ok";
+    }
 }

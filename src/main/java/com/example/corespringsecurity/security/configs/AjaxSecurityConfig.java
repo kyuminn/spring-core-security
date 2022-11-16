@@ -1,6 +1,8 @@
 package com.example.corespringsecurity.security.configs;
 
+import com.example.corespringsecurity.security.common.AjaxLoginAuthenticationEntryPoint;
 import com.example.corespringsecurity.security.filter.AjaxLoginProcessingFilter;
+import com.example.corespringsecurity.security.handler.AjaxAccessDeniedHandler;
 import com.example.corespringsecurity.security.handler.AjaxAuthenticationFailureHandler;
 import com.example.corespringsecurity.security.handler.AjaxAuthenticationSuccessHandler;
 import com.example.corespringsecurity.security.provider.AjaxAuthenticationProvider;
@@ -37,6 +39,7 @@ public class AjaxSecurityConfig {
     // ===> AuthenticationSuccessHandler를 구현하는 구체적인 class 이름으로 config 파일을 바꾸어주었더니 에러 해결 !
     private final AjaxAuthenticationSuccessHandler ajaxAuthenticationSuccessHandler;
     private final AjaxAuthenticationFailureHandler ajaxAuthenticationFailureHandler;
+    private final AjaxAccessDeniedHandler ajaxAccessDeniedHandler;
 
     // Spring security가 인증처리를 할때 이 provider를 사용해서 인증처리를 함
     // RequriedArgsConstructor 방식으로 바꿈!
@@ -50,18 +53,24 @@ public class AjaxSecurityConfig {
         return new AjaxAuthenticationProvider(userDetailsService,passwordEncoder);
     }
 
-
+    // to-do : EntryPoint는 bean 등록을 하지 않고, new () 방식으로 생성한 이유?
+    // https://www.inflearn.com/questions/485425
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception{
         http
                 .antMatcher("/api/**") // api로 시작하는 경로에 한해서만 AjaxSecurityConfig class가 동작하도록
                 .authorizeRequests()
+                .antMatchers("/api/messages").hasRole("MANAGER") // /api/messgaes로 접근하려면 매니저 권한이 있어야만 가능하도록 설정
                 .anyRequest().authenticated();
 
         AuthenticationManager authenticationManager = authenticationManager(http.getSharedObject(AuthenticationConfiguration.class));
         http
                 .addFilterBefore(ajaxLoginProcessingFilter(authenticationManager), UsernamePasswordAuthenticationFilter.class);// 뒤에 있는 필터 앞에 위치하도록 하는 method
         http.csrf().disable();
+        http
+                .exceptionHandling()
+                .authenticationEntryPoint(new AjaxLoginAuthenticationEntryPoint())
+                .accessDeniedHandler(ajaxAccessDeniedHandler);
         return http.build();
     }
 
