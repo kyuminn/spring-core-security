@@ -3,6 +3,8 @@ package com.example.corespringsecurity.security.configs;
 import com.example.corespringsecurity.security.common.FormAuthenticationDetailsSource;
 import com.example.corespringsecurity.security.filter.AjaxLoginProcessingFilter;
 import com.example.corespringsecurity.security.handler.CustomAccessDeniedHandler;
+import com.example.corespringsecurity.security.handler.CustomAuthenticationFailureHandler;
+import com.example.corespringsecurity.security.handler.CustomAuthenticationSuccessHandler;
 import com.example.corespringsecurity.security.provider.CustomAuthenticationProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,12 +56,12 @@ public class SecurityConfig {
     // 특정 인터페이스 타입으로 생성된 bean이 하나라면 자동적으로 그 class가 bean으로 주입됨
 
     // 이것이 AuthenticationDetailSource를 주입했지만 FormAuthenticationDetailsSource bean이 주입되는 이유임.
-    // SuccessHandler, FailureHandler도 마찬가지
 
-            // to-do : private final 하게 DI 할때 bean 이름은 변수명 인가 ?
+            // private final 하게 DI 할때 bean 이름은 변수명 인가 ?
+            // ==>변수명이 아니라 class명임. 대신 첫번째글자 대문자가 소문자로 변경됨 (예 : customAuthenticationSuccessHandler)
     private final AuthenticationDetailsSource authenticationDetailsSource;
-    private final AuthenticationSuccessHandler formAuthenticationSuccessHandler;
-    private final AuthenticationFailureHandler formAuthenticationFailureHandler;
+    private final CustomAuthenticationSuccessHandler formAuthenticationSuccessHandler;
+    private final CustomAuthenticationFailureHandler formAuthenticationFailureHandler;
 //    private final AccessDeniedHandler accessDeniedHandler;
 
 
