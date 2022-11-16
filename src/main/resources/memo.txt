@@ -1,1 +1,13 @@
 타임리프 url 이동 관련 : https://ojt90902.tistory.com/732
+
+FilterSecurityInterceptor class = 인가처리를 하는 class / 해당 사용자가 접근하고자 하는 자원에 권한이 있는지 확인.
+    1. 인증을 받지 않은 사용자(익명 사용자)가 인증이 필요한 특정 자원에 접근하려고 할 경우 그 사용자로 하여금 다시 인증을 받을 수 있도록 처리
+    2. 인증을 받는 사용자가, 해당 자원에 접근할 수 있는 권한이 없는 경우에
+
+    (AccessDeniedException 발생시키고 , 이 예외를 ExceptionTranslationFilter가 받음)
+    1의 이유로 예외가 발생했을 경우 내부적으로 참조하고 있는 authenticationEntryPoint class의 commence() 호출, 여기서 로그인 페이지로 리다이렉트 처리 등.
+    2의 이유로 예외가 발생했을 경우 accessDeniedHandler의 handle class를 호출
+
+
+FilterSecurityInterceptor class, ExceptionTranslationFIlter class 를 볼 것.
+

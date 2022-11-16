@@ -44,6 +44,7 @@ public class AjaxLoginProcessingFilter extends AbstractAuthenticationProcessingF
         // manager에게 인증처리 하도록 함
         return getAuthenticationManager().authenticate(token);
         // 인증객체가 return 되면 (인증이완료되면) filter 이후에 successHandler가 동작
+        // AbstractAuthenticationProcessingFilter에서 successHandler.onAuthenticationSuccess 부분
     }
 
     private boolean isAjax(HttpServletRequest request) {

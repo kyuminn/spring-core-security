@@ -37,7 +37,7 @@ public class AjaxAuthenticationFailureHandler implements AuthenticationFailureHa
         }else if(exception instanceof CredentialsExpiredException){
             errMsg = "Expired Password";
         }
-
+        // 인증 실패 시 errMsg를 response
         objectMapper.writeValue(response.getWriter(),errMsg);
     }
 }
